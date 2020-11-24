@@ -1,4 +1,4 @@
-package logger
+package powerlogger
 
 import (
 	"context"
@@ -26,7 +26,7 @@ type Logger struct {
 type Label interface{}
 
 // Start initializes the logger
-func Start(lc *Config) {
+func Start(lc Config) {
 	glogger = &Logger{}
 }
 
@@ -44,8 +44,8 @@ func Inject(ctx context.Context, labels ...Label) {
 }
 
 // Debug logs with Debug level
-func Debug(ctx context.Context, msg string, attr ...zapcore.Field) {
-	glogger.zlog.Debug(msg, attr...)
+func Debug(ctx context.Context, msg string, labels ...Label) {
+	// glogger.zlog.Debug(msg, attr...)
 }
 
 // Bool attach Bool label
