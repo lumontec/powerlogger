@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	plog "main/powerlogger"
 	"time"
+
+	plog "powerlogger"
 )
 
 func main() {

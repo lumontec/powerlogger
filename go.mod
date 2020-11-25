@@ -1,4 +1,4 @@
-module main
+module powerlogger 
 
 go 1.14
 
