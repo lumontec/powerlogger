@@ -85,7 +85,7 @@ func main() {
 }
 
 func sub1(ctx context.Context, arg1 int) {
-	defer plog.CloseSpan(ctx, "sub1")
+	defer plog.CloseSpan(ctx)
 
 	plog.Debug(ctx, "inside function sub1", plog.Bool("customkey3", true))
 	plog.Inject(ctx, plog.Bool("injectedkey1", false))
@@ -94,7 +94,7 @@ func sub1(ctx context.Context, arg1 int) {
 }
 
 func sub2(ctx context.Context, arg1 string, arg2 bool) {
-	defer plog.CloseSpan(ctx, "sub2")
+	defer plog.CloseSpan(ctx)
 
 	plog.Debug(ctx, "inside function sub2", plog.Bool("customkey4", true))
 

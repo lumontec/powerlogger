@@ -124,7 +124,7 @@ func Span(ctx context.Context) context.Context {
 }
 
 // CloseSpan closes current span, assigns name, sets the status
-func CloseSpan(ctx context.Context, name string) {
+func CloseSpan(ctx context.Context) {
 	span := trace.SpanFromContext(ctx)
 	callername := callerFrameName()
 	span.SetName(callername)
