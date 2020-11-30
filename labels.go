@@ -33,3 +33,8 @@ func Float32(key string, val float32) label.KeyValue {
 func Float64(key string, val float64) label.KeyValue {
 	return label.Float64(key, val)
 }
+
+// String attach String label
+func String(key string, val string) label.KeyValue {
+	return label.String(key, val)
+}
