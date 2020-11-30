@@ -104,12 +104,66 @@ func sub2(ctx context.Context, arg1 string, arg2 bool) {
 
 ## Refactoring table
 
-|   |        Old              |                   Empowered                 |
-| - | ----------------------- | ------------------------------------------- |
-| 1 | `func sub(arg1 int) {}` | `func sub(ctx context.Context, arg1 int) {` |
-|   |                         | `defer plog.CloseSpan(ctx) `                |
-|   |                         | `}`                                         |
-| - | ----------------------- | ------------------------------------------- |
-| 2 | `sub(1)`                | `sub(plog.Next(ctx), 1)`                    |
-| - | ----------------------- | ------------------------------------------- |
+<table>
+<tr>
+<th>
+Function
+</th>
+<th>
+Pre
+</th>
+<th>
+Post
+</th>
+</tr>
 
+<tr>
+
+<td>
+<pre>
+DEFINITION
+</pre>
+</td>
+
+<td>
+<pre>
+func sub(arg1 int) {}`
+</pre>
+</td>
+
+
+<td>
+<pre>
+func sub(ctx context.Context, arg1 int) {
+	defer plog.CloseSpan(ctx)
+}                   
+</pre>
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+<pre>
+INSTANCE
+</pre>
+</td>
+
+<td>
+<pre>
+sub(1)`
+</pre>
+</td>
+
+
+<td>
+<pre>
+sub(plog.Next(ctx), 1)
+</pre>
+</td>
+
+</tr>
+
+</table>
