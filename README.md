@@ -51,7 +51,7 @@ plog.Debug(ctx, "inside function sub1", plog.Bool("customkey3", true))
 plog.Inject(ctx, plog.Bool("injectedkey3", false))
 ```
 
-*Full example:*
+*Full example (./example/main.go):*
 ```
 package main
 
