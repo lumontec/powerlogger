@@ -137,12 +137,6 @@ func Inject(ctx context.Context, labels ...label.KeyValue) {
 	span.SetAttributes(labels...)
 }
 
-// Debug logs with Debug level
-func Debug(ctx context.Context, msg string, labels ...label.KeyValue) {
-	span := trace.SpanFromContext(ctx)
-	span.AddEvent(msg, trace.WithAttributes(labels...))
-}
-
 func handleErr(err error, message string) {
 	if err != nil {
 		log.Fatalf("%s: %v", message, err)

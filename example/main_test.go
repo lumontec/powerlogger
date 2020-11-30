@@ -24,26 +24,6 @@ func Calculate() int {
 	return i
 }
 
-// func BenchmarkLogPackage(b *testing.B) {
-// 	for i := 0; i < b.N; i++ {
-// 		fmt.Println("ciao")
-// 	}
-// }
-
-// ~638 ns/op
-//func BenchmarkLogZap(b *testing.B) {
-//
-//	logger, _ := zap.NewProduction()
-//	defer logger.Sync()
-//	for i := 0; i < b.N; i++ {
-//		logger.Info("failed to fetch URL",
-//			// Structured context as strongly typed Field values.
-//			zap.String("url", "ciao"),
-//			zap.Int("attempt", 3),
-//		)
-//	}
-//}
-
 func BenchmarkStackTrace(b *testing.B) {
 	// fmap[string[]{"/home/crash/Documents/local/pers/radlog/main_test.go","2"}] = "ciao"
 	fmap[location{"/home/crash/Documents/local/pers/radlog/main_test.go", 2}] = "ciao"
