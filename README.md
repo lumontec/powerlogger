@@ -1,59 +1,32 @@
-# **RADLOG** 
-Radical logging framework
+# **POWERLOGGER** 
+Powerlogger is the logger that you expect, enhanced with software telemetry superpowers
 
 ## Rationale 
-Radlog is an experimental logging library vaguely inspired by log4j and based on few alternative principles:
-- The app is responsible for both log generation and filtering
-- Log generation should be strongly opinionated and as standard as possible (log all worry after)
-- Log filtering should be configurable at function level
-- Logging should have the smallest impact on performance
-- Radlog trades performance for observarbility
+Lets face it, implementing telemetry is getting complex and verbose, and not everybody has the time or the resources to properly and fully instrument new or old codebases. Part of this complexity is due to the vastity of configurations and deployment options allowed by the libraries. Powerlogger comes to help you avoiding this complexity by providing an opinionated implementation that runs most of the stuff under the hood.
+The core idea of the project is allowing everyone to refactor his old logger with powerlogger, gaining telemetric functionalities at little to no cost, while avoiding polluting the codebase with excessive amount of infrasctructure related stuff.
 
 ## Functionality 
-Radlog automatically generates a radix tree of logging nodes at startup, binding the lognode to the call stack location and caching the nodes for subsequent calls
-Every log entry generated around the code is bound to a node in the radix tree
-Filtering can be applied to subbranches based on rules
+Powerlogger exposes a simple minimalistic logging api, implementing most of the opinionated code telemetry under the hood
+- implements a singleton global object, no need to pass you logger around anymore 
+- automatically generates span names from function callers (efficiently gathered from the caller frame) 
+- tracks spans through context propagation
+- tees information to both console and opentelemetry-collector by default 
 
-## **Example** 
+## **Example API** 
 
-*Call stack:* 
+*Generate new span:* 
 ```
-.
-├── main()                                                  l.inf, l.err
-    ├── u := newuser()                                             l.err 
-    ├── n := newbook()                                             l.err 
-    └── u.readbook(n)                                              l.err 
-             ├── adduserbooks(u,n)                          l.inf 
-             │        └── insertdbentry(u,n)         l.dbg, l.inf
-             └── removebookfromlibrary(n)                   l.inf 
-                      └── insertdbentry(u,n)         l.dbg, l.inf
 ```
 
-*Log nodes:*  
+*Close span:*  
 ```
-.main (l.inf, l.err)
-.main.newuser  (l.err)
-.main.newbook  (l.err)
-.main.readbook (l.err)
-.main.readbook.adduserbooks (l.inf)
-.main.readbook.adduserbooks.insertdbentry (l.dbg,l.inf)
-.main.readbook.adduserbooks (l.inf)
-.main.readbook.removebookfromlibrary.insertdbentry (l.dbg,l.inf)
 ```
 
-*Rules configuration examples:*  
+*Log event (add log to span):*  
 ```
-# debug all newuser() subfunctions
-.main=inf
-.main.newuser=dbg
+```
 
-# debug insertdbentry() inside adduserbooks() function alone*
-.main=inf
-.main.readbook.adduserbooks.insertdbentry=dbg
-
-# debug adduserbooks() function with no sublogs*
-.main=inf
-.main.readbook.adduserbooks=dbg
-.main.readbook.adduserbooks.*=inf
+*Inject key value context to downstream spans:*  
+```
 ```
 
