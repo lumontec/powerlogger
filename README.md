@@ -2,7 +2,10 @@
 Powerlogger is the logger that you expect, enhanced with software telemetry superpowers
 
 ## Rationale 
-Lets face it, implementing telemetry is getting complex and verbose, and not everybody has the time or the resources to properly and fully instrument new or old codebases. Part of this complexity is due to the vastity of configurations and deployment options allowed by the libraries. Powerlogger comes to help you avoiding this complexity by providing an opinionated implementation that runs most of the stuff under the hood.
+Lets face it, implementing telemetry is getting complex and verbose, and not everybody has the time or the resources to properly and fully instrument new or old codebases. 
+Part of this complexity is due to the vastity of configurations and deployment options allowed by the libraries. 
+
+Powerlogger comes to help you avoiding this complexity by providing an opinionated implementation that runs most of the stuff under the hood.
 The core idea of the project is allowing everyone to refactor his old logger with powerlogger, gaining telemetric functionalities at little to no cost, while avoiding polluting the codebase with excessive amount of infrasctructure related stuff.
 
 ## Functionality 
@@ -16,12 +19,12 @@ Powerlogger exposes a simple minimalistic logging api, implementing most of the 
 ## **Example API** 
 
 *Import powerlogger:* 
-```
+```go
 import ( plog "powerlogger")
 ```
 
 *Initialize powerlogger:* 
-```
+```go
 ctx := plog.Start(plog.Config{
 	ServiceName:    "test_service",
 	ServiceVersion: "1.0.0",
@@ -32,27 +35,27 @@ ctx := plog.Start(plog.Config{
 ```
 
 *Generate new span for func sub1:* 
-```
-sub1(plog.Span(ctx), 1)
+```go
+sub1(plog.Span(ctx), "arg1")
 ```
 
 *Close span for function:*
-```
+```go
 defer plog.CloseSpan(ctx)
 ```
 
 *Log event with some context (add log to span):*
-```
+```go
 plog.Debug(ctx, "inside function sub1", plog.Bool("customkey3", true))
 ```
 
 *Inject key value context to downstream spans:*
-```
+```go
 plog.Inject(ctx, plog.Bool("injectedkey3", false))
 ```
 
 *Full example (./example/main.go):*
-```
+```go
 package main
 
 import (
