@@ -103,9 +103,13 @@ func sub2(ctx context.Context, arg1 string, arg2 bool) {
 ```
 
 ## Refactoring table
-| Old  | Empowered |
-| ------------- | ------------- |
-| ```go func sub(arg1 int) {}``` | ```go func sub(ctx context.Context, arg1 int) { defer plog.CloseSpan(ctx) }``` |
-| ```go sub(1)``` | ```go sub(plog.Next(ctx), 1) {}``` |
 
+|   |        Old              |                   Empowered                 |
+| - | ----------------------- | ------------------------------------------- |
+| 1 | `func sub(arg1 int) {}` | `func sub(ctx context.Context, arg1 int) {` |
+|   |                         | `defer plog.CloseSpan(ctx) `                |
+|   |                         | `}`                                         |
+| - | ----------------------- | ------------------------------------------- |
+| 2 | `sub(1)`                | `sub(plog.Next(ctx), 1)`                    |
+| - | ----------------------- | ------------------------------------------- |
 
