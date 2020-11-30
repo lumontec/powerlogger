@@ -143,11 +143,6 @@ func Debug(ctx context.Context, msg string, labels ...label.KeyValue) {
 	span.AddEvent(msg, trace.WithAttributes(labels...))
 }
 
-// Bool attach Bool label
-func Bool(key string, val bool) label.KeyValue {
-	return label.Bool(key, val)
-}
-
 func handleErr(err error, message string) {
 	if err != nil {
 		log.Fatalf("%s: %v", message, err)
