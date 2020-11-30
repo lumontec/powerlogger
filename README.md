@@ -105,9 +105,7 @@ func sub2(ctx context.Context, arg1 string, arg2 bool) {
 ## Refactoring table
 | Old  | Empowered |
 | ------------- | ------------- |
-| ```go func sub(arg1 int) {}``` | ```go func sub(ctx context.Context, arg1 int) { 
-defer plog.CloseSpan(ctx)
-}``` |
+| ```go func sub(arg1 int) {}``` | ```go func sub(ctx context.Context, arg1 int) { defer plog.CloseSpan(ctx) }``` |
 | ```go sub(1)``` | ```go sub(plog.Next(ctx), 1) {}``` |
 
 
