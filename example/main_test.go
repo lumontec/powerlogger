@@ -71,29 +71,30 @@ func sub6() {
 
 func sub7() {
 	fmt.Println("MAIN FUNCTION")
-	printStack()
+	printCaller()
 	go func() {
 		fmt.Println("GOROUTINE")
-		printStack()
+		printCaller()
 	}()
 }
 
-func printStack() {
-	counter := make([]uintptr, 164)
-	n := runtime.Callers(0, counter)
+func printCaller() {
+	counter := make([]uintptr, 4)
+	runtime.Callers(2, counter)
+	// n := runtime.Callers(0, counter)
 	frames := runtime.CallersFrames(counter)
 
-	i := 0
+	// i := 0
 	frame, _ := frames.Next()
 
-	for {
-		i++
-		fmt.Println("frame:", frame)
-		frame, _ = frames.Next()
-		if i > n {
-			break
-		}
-	}
+	// for {
+	// 	i++
+	fmt.Println("frame:", frame.Function)
+	// 	frame, _ = frames.Next()
+	// 	if i > n {
+	// 		break
+	// 	}
+	// }
 
 	// level := fmap[location{frame.File, frame.Line}]
 }

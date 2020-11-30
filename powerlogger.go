@@ -126,11 +126,11 @@ func Span(ctx context.Context) context.Context {
 // CloseSpan closes current span, assigns name, sets the status
 func CloseSpan(ctx context.Context, name string) {
 	span := trace.SpanFromContext(ctx)
-	span.SetName(name)
+	callername := callerFrameName()
+	span.SetName(callername)
 	span.End()
 }
 
-//
 // Inject injects custom key values inside context
 func Inject(ctx context.Context, labels ...label.KeyValue) {
 	span := trace.SpanFromContext(ctx)

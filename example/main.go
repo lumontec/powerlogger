@@ -22,10 +22,7 @@ func main() {
 
 	plog.Debug(ctx, "main function initialized", plog.Bool("customkey1", true), plog.Bool("customkey2", true))
 
-	plog.Inject(ctx, plog.Bool("injectedkey1", false))
-
 	sub1(plog.Span(ctx), 1)
-
 	time.Sleep(10 * time.Second)
 }
 
@@ -33,16 +30,13 @@ func sub1(ctx context.Context, arg1 int) {
 	defer plog.CloseSpan(ctx, "sub1")
 
 	plog.Debug(ctx, "inside function sub1", plog.Bool("customkey3", true))
-
-	plog.Inject(ctx, plog.Bool("injectedkey2", false))
+	plog.Inject(ctx, plog.Bool("injectedkey1", false))
 
 	sub2(plog.Span(ctx), "1arg", false)
 }
 
 func sub2(ctx context.Context, arg1 string, arg2 bool) {
 	defer plog.CloseSpan(ctx, "sub2")
-
-	plog.Inject(ctx, plog.Bool("injectedkey3", false))
 
 	plog.Debug(ctx, "inside function sub2", plog.Bool("customkey4", true))
 
