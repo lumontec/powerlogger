@@ -7,6 +7,7 @@ The core idea of the project is allowing everyone to refactor his old logger wit
 
 ## Functionality 
 Powerlogger exposes a simple minimalistic logging api, implementing most of the opinionated code telemetry under the hood
+- json logging as a mission 
 - implements a singleton global object, no need to pass you logger around anymore 
 - automatically generates span names from function callers (efficiently gathered from the caller frame) 
 - tracks spans through context propagation
@@ -14,19 +15,39 @@ Powerlogger exposes a simple minimalistic logging api, implementing most of the 
 
 ## **Example API** 
 
-*Generate new span:* 
+*Import powerlogger:* 
 ```
-```
-
-*Close span:*  
-```
+import ( plog "powerlogger")
 ```
 
-*Log event (add log to span):*  
+*Initialize powerlogger:* 
 ```
+ctx := plog.Start(plog.Config{
+	ServiceName:    "test_service",
+	ServiceVersion: "1.0.0",
+	HostHostname:   "localhost",
+	CollectorAddr:  "localhost:55680",
+	PusherPeriod:   7 * time.Second,
+})
 ```
 
-*Inject key value context to downstream spans:*  
+*Generate new span for func sub1:* 
 ```
+sub1(plog.Span(ctx), 1)
+```
+
+*Close span for function:*
+```
+defer plog.CloseSpan(ctx)
+```
+
+*Log event with some context (add log to span):*
+```
+plog.Debug(ctx, "inside function sub1", plog.Bool("customkey3", true))
+```
+
+*Inject key value context to downstream spans:*
+```
+plog.Inject(ctx, plog.Bool("injectedkey3", false))
 ```
 
