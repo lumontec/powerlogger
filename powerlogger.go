@@ -44,9 +44,6 @@ type powerlogger struct {
 	tracer         trace.Tracer
 }
 
-// Label data type
-type Label interface{}
-
 // Start initializes powerlogger
 func Start(lc Config) context.Context {
 	ctx := initTracer(lc.CollectorAddr, lc.ServiceName, lc.PusherPeriod)
