@@ -55,7 +55,7 @@ func Start(lc Config) context.Context {
 }
 
 func initLogger() {
-	logger, _ := newLoggerConfig().Build()
+	logger, _ := newLoggerConfig().Build(zap.AddCaller(), zap.AddCallerSkip(1))
 	defer logger.Sync()
 	plogger.logger = logger
 }
@@ -80,8 +80,8 @@ func newLoggerEncoderConfig() zapcore.EncoderConfig {
 		TimeKey:  "ts",
 		LevelKey: "level",
 		//		NameKey:        "logger",
-		CallerKey: "span",
-		//		FunctionKey:    zapcore.OmitKey,
+		//		CallerKey:      "span",
+		FunctionKey:    "span",
 		MessageKey:     "msg",
 		StacktraceKey:  "stacktrace",
 		LineEnding:     zapcore.DefaultLineEnding,
