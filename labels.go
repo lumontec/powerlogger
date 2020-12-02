@@ -17,6 +17,7 @@ const (
 	STRING
 )
 
+// Label struct for context information
 type Label interface {
 	OtelLabel() label.KeyValue
 	ZapLabel() zap.Field
@@ -81,8 +82,8 @@ type StringLabel struct {
 }
 
 // Bool attach Bool label
-func Bool(key string, val bool) BoolLabel {
-	return BoolLabel{
+func Bool(key string, val bool) *BoolLabel {
+	return &BoolLabel{
 		Type: BOOL,
 		Key:  key,
 		Val:  val,
@@ -90,8 +91,8 @@ func Bool(key string, val bool) BoolLabel {
 }
 
 // Int attach Int label
-func Int(key string, val int) IntLabel {
-	return IntLabel{
+func Int(key string, val int) *IntLabel {
+	return &IntLabel{
 		Type: INT,
 		Key:  key,
 		Val:  val,
@@ -99,8 +100,8 @@ func Int(key string, val int) IntLabel {
 }
 
 // Int32 attach Int32 label
-func Int32(key string, val int32) Int32Label {
-	return Int32Label{
+func Int32(key string, val int32) *Int32Label {
+	return &Int32Label{
 		Type: INT32,
 		Key:  key,
 		Val:  val,
@@ -108,8 +109,8 @@ func Int32(key string, val int32) Int32Label {
 }
 
 // Int64 attach Int64 label
-func Int64(key string, val int64) Int64Label {
-	return Int64Label{
+func Int64(key string, val int64) *Int64Label {
+	return &Int64Label{
 		Type: INT64,
 		Key:  key,
 		Val:  val,
@@ -117,8 +118,8 @@ func Int64(key string, val int64) Int64Label {
 }
 
 // Float32 attach Float32 label
-func Float32(key string, val float32) Float32Label {
-	return Float32Label{
+func Float32(key string, val float32) *Float32Label {
+	return &Float32Label{
 		Type: FLOAT32,
 		Key:  key,
 		Val:  val,
@@ -126,8 +127,8 @@ func Float32(key string, val float32) Float32Label {
 }
 
 // Float64 attach Float64 label
-func Float64(key string, val float64) Float64Label {
-	return Float64Label{
+func Float64(key string, val float64) *Float64Label {
+	return &Float64Label{
 		Type: FLOAT64,
 		Key:  key,
 		Val:  val,
@@ -135,8 +136,8 @@ func Float64(key string, val float64) Float64Label {
 }
 
 // String attach String label
-func String(key string, val string) StringLabel {
-	return StringLabel{
+func String(key string, val string) *StringLabel {
+	return &StringLabel{
 		Type: STRING,
 		Key:  key,
 		Val:  val,
