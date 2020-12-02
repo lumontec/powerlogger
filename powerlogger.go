@@ -7,6 +7,7 @@ import (
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp"
+
 	//	"go.opentelemetry.io/otel/exporters/stdout"
 	"go.opentelemetry.io/otel/label"
 	"go.opentelemetry.io/otel/propagation"
@@ -180,7 +181,8 @@ func Span(ctx context.Context) context.Context {
 // CloseSpan closes current span, assigns name, sets the status
 func CloseSpan(ctx context.Context) {
 	span := trace.SpanFromContext(ctx)
-	callername := callerFrameName()
+	// Skip the first 3 frames to pass CloseSpan
+	callername := callerFrameName(3)
 	span.SetName(callername)
 	span.End()
 }

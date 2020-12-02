@@ -4,10 +4,10 @@ import (
 	"runtime"
 )
 
-func callerFrameName() string {
+func callerFrameName(skip int) string {
 	counter := make([]uintptr, 4)
-	// Skip first 2 frames in the stack
-	runtime.Callers(2, counter)
+	// Skip first skip frames in the stack
+	runtime.Callers(skip, counter)
 	frames := runtime.CallersFrames(counter)
 	// Pull first frame
 	frame, _ := frames.Next()
