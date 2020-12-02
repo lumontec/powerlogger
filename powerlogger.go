@@ -9,7 +9,6 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp"
 
 	//	"go.opentelemetry.io/otel/exporters/stdout"
-	"go.opentelemetry.io/otel/label"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/metric/controller/push"
 	"go.opentelemetry.io/otel/sdk/metric/processor/basic"
@@ -88,14 +87,6 @@ func newLoggerEncoderConfig() zapcore.EncoderConfig {
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
 }
-
-//func Example_advancedConfiguration() {
-//
-//	logger := zap.New(core)
-//	defer logger.Sync()
-//	logger.Info("constructed a logger")
-//}
-//
 
 func initTracer(collectorAddr string, serviceName string, pusherPeriod time.Duration) context.Context {
 
@@ -185,9 +176,10 @@ func CloseSpan(ctx context.Context) {
 }
 
 // Inject injects custom key values inside context
-func Inject(ctx context.Context, labels ...label.KeyValue) {
+func Inject(ctx context.Context, labels ...Label) {
 	span := trace.SpanFromContext(ctx)
-	span.SetAttributes(labels...)
+	otelLabels := OtelLabels(labels...)
+	span.SetAttributes(otelLabels...)
 }
 
 func handleErr(err error, message string) {

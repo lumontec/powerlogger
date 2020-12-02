@@ -19,7 +19,23 @@ const (
 
 type Label interface {
 	OtelLabel() label.KeyValue
-	ZapLabel() label.KeyValue
+	ZapLabel() zap.Field
+}
+
+func OtelLabels(labels ...Label) []label.KeyValue {
+	otlabels := []label.KeyValue{}
+	for _, label := range labels {
+		otlabels = append(otlabels, label.OtelLabel())
+	}
+	return otlabels
+}
+
+func ZapLabels(labels ...Label) []zap.Field {
+	zaplabels := []zap.Field{}
+	for _, label := range labels {
+		zaplabels = append(zaplabels, label.ZapLabel())
+	}
+	return zaplabels
 }
 
 type BoolLabel struct {
