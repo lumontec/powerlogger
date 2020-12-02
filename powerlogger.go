@@ -7,7 +7,7 @@ import (
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp"
-	"go.opentelemetry.io/otel/exporters/stdout"
+	//	"go.opentelemetry.io/otel/exporters/stdout"
 	"go.opentelemetry.io/otel/label"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/metric/controller/push"
@@ -17,12 +17,12 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/semconv"
 	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
-	// "go.uber.org/zap"
-	// "go.uber.org/zap/zapcore"
 )
 
-var glogger = &powerlogger{}
+var plogger = &powerlogger{}
 
 // Config configuration
 type Config struct {
@@ -35,7 +35,8 @@ type Config struct {
 
 // Logger object
 type powerlogger struct {
-	consolexp      *stdout.Exporter
+	//	consolexp      *stdout.Exporter
+	logger         *zap.Logger
 	collectorexp   *otlp.Exporter
 	pusher         *push.Controller
 	tracerprovider *sdktrace.TracerProvider
@@ -47,47 +48,99 @@ type Label interface{}
 
 // Start initializes powerlogger
 func Start(lc Config) context.Context {
+	ctx := initTracer(lc.CollectorAddr, lc.ServiceName, lc.PusherPeriod)
+	initLogger()
+	return ctx
+}
+
+func initLogger() {
+	logger, _ := newLoggerConfig().Build()
+	defer logger.Sync()
+	plogger.logger = logger
+}
+
+func newLoggerConfig() zap.Config {
+	return zap.Config{
+		Level:       zap.NewAtomicLevelAt(zap.InfoLevel),
+		Development: false,
+		Sampling: &zap.SamplingConfig{
+			Initial:    100,
+			Thereafter: 100,
+		},
+		Encoding:         "json",
+		EncoderConfig:    newLoggerEncoderConfig(),
+		OutputPaths:      []string{"stderr"},
+		ErrorOutputPaths: []string{"stderr"},
+	}
+}
+
+func newLoggerEncoderConfig() zapcore.EncoderConfig {
+	return zapcore.EncoderConfig{
+		TimeKey:  "ts",
+		LevelKey: "level",
+		//		NameKey:        "logger",
+		CallerKey: "span",
+		//		FunctionKey:    zapcore.OmitKey,
+		MessageKey:     "msg",
+		StacktraceKey:  "stacktrace",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		EncodeTime:     zapcore.EpochTimeEncoder,
+		EncodeDuration: zapcore.SecondsDurationEncoder,
+		EncodeCaller:   zapcore.ShortCallerEncoder,
+	}
+}
+
+//func Example_advancedConfiguration() {
+//
+//	logger := zap.New(core)
+//	defer logger.Sync()
+//	logger.Info("constructed a logger")
+//}
+//
+
+func initTracer(collectorAddr string, serviceName string, pusherPeriod time.Duration) context.Context {
 
 	ctx := context.Background()
 
 	collectorexp, err := otlp.NewExporter(
 		otlp.WithInsecure(),
-		otlp.WithAddress(lc.CollectorAddr),
+		otlp.WithAddress(collectorAddr),
 		otlp.WithGRPCDialOption(grpc.WithBlock()), // useful for testing
 	)
 
-	glogger.collectorexp = collectorexp
+	plogger.collectorexp = collectorexp
 
 	handleErr(err, "failed to create collectorexp")
 
-	consoleexp, err := stdout.NewExporter([]stdout.Option{
-		stdout.WithQuantiles([]float64{0.5, 0.9, 0.99}),
-		stdout.WithPrettyPrint(),
-	}...)
+	//	consoleexp, err := stdout.NewExporter([]stdout.Option{
+	//		stdout.WithQuantiles([]float64{0.5, 0.9, 0.99}),
+	//		stdout.WithPrettyPrint(),
+	//	}...)
+	//
+	//	plogger.consolexp = consoleexp
 
-	glogger.consolexp = consoleexp
-
-	handleErr(err, "failed to create consoleexp")
+	//	handleErr(err, "failed to create consoleexp")
 
 	res, err := resource.New(ctx,
 		resource.WithAttributes(
 			// the service name used to display traces in backends
-			semconv.ServiceNameKey.String(lc.ServiceName),
+			semconv.ServiceNameKey.String(serviceName),
 		),
 	)
 	handleErr(err, "failed to create resource")
 
-	collectorbsp := sdktrace.NewBatchSpanProcessor(glogger.collectorexp)
-	consolebsp := sdktrace.NewBatchSpanProcessor(glogger.consolexp)
+	collectorbsp := sdktrace.NewBatchSpanProcessor(plogger.collectorexp)
+	//	consolebsp := sdktrace.NewBatchSpanProcessor(plogger.consolexp)
 
 	tracerProvider := sdktrace.NewTracerProvider(
 		sdktrace.WithConfig(sdktrace.Config{DefaultSampler: sdktrace.AlwaysSample()}),
 		sdktrace.WithResource(res),
 		sdktrace.WithSpanProcessor(collectorbsp),
-		sdktrace.WithSpanProcessor(consolebsp),
+		//		sdktrace.WithSpanProcessor(consolebsp),
 	)
 
-	glogger.tracerprovider = tracerProvider
+	plogger.tracerprovider = tracerProvider
 
 	pusher := push.New(
 		basic.New(
@@ -95,7 +148,7 @@ func Start(lc Config) context.Context {
 			collectorexp,
 		),
 		collectorexp,
-		push.WithPeriod(lc.PusherPeriod),
+		push.WithPeriod(pusherPeriod),
 	)
 
 	// set global propagator to tracecontext (the default is no-op).
@@ -104,22 +157,23 @@ func Start(lc Config) context.Context {
 	otel.SetMeterProvider(pusher.MeterProvider())
 	pusher.Start()
 
-	glogger.tracer = otel.Tracer("global-tracer")
+	plogger.tracer = otel.Tracer("global-tracer")
 
 	return ctx
+
 }
 
 // Stop powerlogger
 func Stop(ctx context.Context) {
-	handleErr(glogger.tracerprovider.Shutdown(ctx), "failed to shutdown provider")
-	handleErr(glogger.collectorexp.Shutdown(ctx), "failed to stop collector exporter")
-	handleErr(glogger.consolexp.Shutdown(ctx), "failed to stop console exporter")
-	glogger.pusher.Stop() // pushes any last exports to the receiver
+	handleErr(plogger.tracerprovider.Shutdown(ctx), "failed to shutdown provider")
+	handleErr(plogger.collectorexp.Shutdown(ctx), "failed to stop collector exporter")
+	//	handleErr(plogger.consolexp.Shutdown(ctx), "failed to stop console exporter")
+	plogger.pusher.Stop() // pushes any last exports to the receiver
 }
 
 // Span Generates child span and logger for context
 func Span(ctx context.Context) context.Context {
-	childCtx, _ := glogger.tracer.Start(ctx, "temp")
+	childCtx, _ := plogger.tracer.Start(ctx, "temp")
 	return childCtx
 }
 
