@@ -2,6 +2,7 @@ package powerlogger
 
 import (
 	"context"
+	"go.opentelemetry.io/otel/label"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -9,8 +10,9 @@ import (
 func Info(ctx context.Context, msg string, labels ...Label) {
 	span := trace.SpanFromContext(ctx)
 	otelLabels := OtelLabels(labels...)
-	zapLabels := ZapLabels(labels...)
+	otelLabels = append(otelLabels, label.String("level", "info"))
 	span.AddEvent(msg, trace.WithAttributes(otelLabels...))
+	zapLabels := ZapLabels(labels...)
 	plogger.logger.Info(msg, zapLabels...)
 }
 
@@ -18,8 +20,9 @@ func Info(ctx context.Context, msg string, labels ...Label) {
 func Debug(ctx context.Context, msg string, labels ...Label) {
 	span := trace.SpanFromContext(ctx)
 	otelLabels := OtelLabels(labels...)
-	zapLabels := ZapLabels(labels...)
+	otelLabels = append(otelLabels, label.String("level", "debug"))
 	span.AddEvent(msg, trace.WithAttributes(otelLabels...))
+	zapLabels := ZapLabels(labels...)
 	plogger.logger.Debug(msg, zapLabels...)
 }
 
@@ -27,7 +30,8 @@ func Debug(ctx context.Context, msg string, labels ...Label) {
 func Error(ctx context.Context, msg string, labels ...Label) {
 	span := trace.SpanFromContext(ctx)
 	otelLabels := OtelLabels(labels...)
-	zapLabels := ZapLabels(labels...)
+	otelLabels = append(otelLabels, label.String("level", "error"))
 	span.AddEvent(msg, trace.WithAttributes(otelLabels...))
+	zapLabels := ZapLabels(labels...)
 	plogger.logger.Error(msg, zapLabels...)
 }
