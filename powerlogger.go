@@ -24,7 +24,7 @@ import (
 
 var plogger = &powerlogger{}
 
-// Config configuration
+// Config powerlogger global configuration
 type Config struct {
 	ServiceName    string
 	ServiceVersion string
@@ -33,7 +33,7 @@ type Config struct {
 	PusherPeriod   time.Duration
 }
 
-// Logger object
+// PowerLogger glogbal object
 type powerlogger struct {
 	//	consolexp      *stdout.Exporter
 	logger         *zap.Logger
