@@ -6,9 +6,11 @@ import (
 	"time"
 
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/baggage"
 	"go.opentelemetry.io/otel/exporters/otlp"
 
 	//	"go.opentelemetry.io/otel/exporters/stdout"
+
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/metric/controller/push"
 	"go.opentelemetry.io/otel/sdk/metric/processor/basic"
@@ -176,10 +178,11 @@ func CloseSpan(ctx context.Context) {
 }
 
 // Inject injects custom key values inside context
-func Inject(ctx context.Context, labels ...Label) {
-	span := trace.SpanFromContext(ctx)
+func Inject(ctx context.Context, labels ...Label) context.Context {
+	// span := trace.SpanFromContext(ctx)
 	otelLabels := OtelLabels(labels...)
-	span.SetAttributes(otelLabels...)
+	return baggage.ContextWithValues(ctx, otelLabels...)
+	// span.SetAttributes(otelLabels...)
 }
 
 func handleErr(err error, message string) {

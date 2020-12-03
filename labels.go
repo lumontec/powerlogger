@@ -8,13 +8,17 @@ import (
 type LabelType int
 
 const (
-	BOOL LabelType = iota
-	INT
+	// INVALID is used for a Value with no value set.
+	INVALID LabelType = iota
+	BOOL
 	INT32
 	INT64
+	UINT32
+	UINT64
 	FLOAT32
 	FLOAT64
 	STRING
+	ARRAY
 )
 
 // Label struct for context information
@@ -37,6 +41,28 @@ func ZapLabels(labels ...Label) []zap.Field {
 		zaplabels = append(zaplabels, label.ZapLabel())
 	}
 	return zaplabels
+}
+
+func ParseOtelLabel(label label.KeyValue) Label {
+	switch LabelType(label.Value.Type()) {
+	case BOOL:
+		return Bool(string(label.Key), label.Value.AsBool())
+	case INT32:
+		return Int32(string(label.Key), label.Value.AsInt32())
+	case INT64:
+		return Int64(string(label.Key), label.Value.AsInt64())
+	// case UINT32:
+	// 	return Uint64(string(label.Key), label.Value.AsInt64())
+	// case UINT64:
+	case FLOAT32:
+		return Float32(string(label.Key), label.Value.AsFloat32())
+	case FLOAT64:
+		return Float64(string(label.Key), label.Value.AsFloat64())
+	case STRING:
+		return String(string(label.Key), label.Value.AsString())
+	case ARRAY:
+	}
+	return nil
 }
 
 type BoolLabel struct {
@@ -85,15 +111,6 @@ type StringLabel struct {
 func Bool(key string, val bool) *BoolLabel {
 	return &BoolLabel{
 		Type: BOOL,
-		Key:  key,
-		Val:  val,
-	}
-}
-
-// Int attach Int label
-func Int(key string, val int) *IntLabel {
-	return &IntLabel{
-		Type: INT,
 		Key:  key,
 		Val:  val,
 	}

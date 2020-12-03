@@ -2,6 +2,8 @@ package powerlogger
 
 import (
 	"context"
+
+	"go.opentelemetry.io/otel/baggage"
 	"go.opentelemetry.io/otel/label"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -13,6 +15,11 @@ func Info(ctx context.Context, msg string, labels ...Label) {
 	otelLabels = append(otelLabels, label.String("level", "info"))
 	span.AddEvent(msg, trace.WithAttributes(otelLabels...))
 	zapLabels := ZapLabels(labels...)
+	injLabelSet := baggage.Set(ctx)
+	injLabArr := injLabelSet.ToSlice()
+	for _, injLab := range injLabArr {
+		zapLabels = append(zapLabels, ParseOtelLabel(injLab).ZapLabel())
+	}
 	plogger.logger.Info(msg, zapLabels...)
 }
 

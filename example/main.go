@@ -20,6 +20,7 @@ func main() {
 		PusherPeriod:   7 * time.Second,
 	})
 
+	ctx = plog.Inject(ctx, plog.Bool("injectedkey1", false))
 	plog.Info(ctx, "main function initialized", plog.Bool("customkey1", true), plog.Bool("customkey2", true))
 
 	sub1(plog.Span(ctx), 1)
@@ -30,7 +31,7 @@ func sub1(ctx context.Context, arg1 int) {
 	defer plog.CloseSpan(ctx)
 
 	plog.Info(ctx, "inside function sub1", plog.Bool("customkey3", true))
-	plog.Inject(ctx, plog.Bool("injectedkey1", false))
+	ctx = plog.Inject(ctx, plog.Bool("injectedkey2", false))
 
 	sub2(plog.Span(ctx), "1arg", false)
 }
